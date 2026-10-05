@@ -487,6 +487,7 @@ MonoBehaviour:
   _speedWalk: 5
   _gravity: 9.81
   _rotationSpeed: 10
+  _cameraTransform: {fileID: 330585546}
 --- !u!1 &191668028
 GameObject:
   m_ObjectHideFlags: 0
