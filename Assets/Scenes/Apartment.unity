@@ -131,7 +131,7 @@ GameObject:
   - component: {fileID: 101104656}
   - component: {fileID: 101104655}
   - component: {fileID: 101104654}
-  m_Layer: 17
+  m_Layer: 16
   m_Name: Wall_Outer_Top
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -486,6 +486,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _speedWalk: 5
   _gravity: 9.81
+  _rotationSpeed: 10
 --- !u!1 &191668028
 GameObject:
   m_ObjectHideFlags: 0
@@ -495,7 +496,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 191668029}
-  m_Layer: 17
+  m_Layer: 16
   m_Name: Walls_Mid
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -530,7 +531,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 265535013}
-  m_Layer: 17
+  m_Layer: 16
   m_Name: Walls_Kitchen
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -566,7 +567,7 @@ GameObject:
   - component: {fileID: 281690582}
   - component: {fileID: 281690581}
   - component: {fileID: 281690580}
-  m_Layer: 17
+  m_Layer: 16
   m_Name: Wall_Mid_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -701,19 +702,19 @@ Camera:
   serializedVersion: 2
   m_ClearFlags: 1
   m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
-  m_projectionMatrixMode: 1
+  m_projectionMatrixMode: 2
   m_GateFitMode: 2
   m_FOVAxisMode: 0
   m_Iso: 200
   m_ShutterSpeed: 0.005
   m_Aperture: 16
   m_FocusDistance: 10
-  m_FocalLength: 50
+  m_FocalLength: 10.042766
   m_BladeCount: 5
   m_Curvature: {x: 2, y: 11}
   m_BarrelClipping: 0.25
   m_Anamorphism: 0
-  m_SensorSize: {x: 36, y: 24}
+  m_SensorSize: {x: 21.946, y: 16.002}
   m_LensShift: {x: 0, y: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
@@ -723,7 +724,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 77.08817
+  field of view: 77.088165
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -749,8 +750,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.1521233, y: 0.00000326155, z: -0.00000050200026, w: 0.98836154}
-  m_LocalPosition: {x: 0, y: 1.9021175, z: -3.8611507}
+  m_LocalRotation: {x: 0.22676674, y: 0.000000014512977, z: -0.0000000033790886, w: 0.97394913}
+  m_LocalPosition: {x: 0, y: 2.1145153, z: -2.9605346}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1108,6 +1109,7 @@ GameObject:
   - component: {fileID: 585729585}
   - component: {fileID: 585729584}
   - component: {fileID: 585729590}
+  - component: {fileID: 585729591}
   m_Layer: 0
   m_Name: FreeLook Camera
   m_TagString: Untagged
@@ -1137,7 +1139,7 @@ MonoBehaviour:
       Enabled: 1
       Input:
         InputAction: {fileID: -5630151704836100654, guid: 052faaac586de48259a63d0c4782560b, type: 3}
-        Gain: 1
+        Gain: 5
         LegacyInput: 
         LegacyGain: 1
         CancelDeltaTime: 0
@@ -1150,7 +1152,7 @@ MonoBehaviour:
       Enabled: 1
       Input:
         InputAction: {fileID: -5630151704836100654, guid: 052faaac586de48259a63d0c4782560b, type: 3}
-        Gain: 1
+        Gain: -3
         LegacyInput: 
         LegacyGain: 1
         CancelDeltaTime: 0
@@ -1172,7 +1174,7 @@ MonoBehaviour:
         AccelTime: 0
         DecelTime: 0
   PlayerIndex: -1
-  AutoEnableInputs: 1
+  AutoEnableInputs: 0
 --- !u!114 &585729585
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1212,8 +1214,8 @@ MonoBehaviour:
       Size: {x: 0.8, y: 0.8}
       Offset: {x: 0, y: 0}
   CenterOnActivate: 1
-  TargetOffset: {x: 0, y: 0, z: 0}
-  Damping: {x: 0, y: 0}
+  TargetOffset: {x: 0, y: 0.1, z: 0.1}
+  Damping: {x: 2, y: 3}
   Lookahead:
     Enabled: 0
     Time: 0
@@ -1238,18 +1240,18 @@ MonoBehaviour:
     AngularDampingMode: 0
     RotationDamping: {x: 1, y: 1, z: 1}
     QuaternionDamping: 1
-  OrbitStyle: 0
+  OrbitStyle: 1
   Radius: 3
   Orbits:
     Top:
-      Radius: 2
-      Height: 5
+      Radius: 1.2
+      Height: 1.7
     Center:
-      Radius: 3
-      Height: 2.25
-    Bottom:
       Radius: 2
-      Height: 0.1
+      Height: 1
+    Bottom:
+      Radius: 1.5
+      Height: 0.01
     SplineCurvature: 0
   RecenteringTarget: 2
   HorizontalAxis:
@@ -1265,7 +1267,7 @@ MonoBehaviour:
   VerticalAxis:
     Value: 17.5
     Center: 17.5
-    Range: {x: -10, y: 45}
+    Range: {x: -5, y: 35}
     Wrap: 0
     Recentering:
       Enabled: 0
@@ -1302,7 +1304,7 @@ MonoBehaviour:
   m_StreamingVersion: 20241001
   m_LegacyPriority: 0
   Target:
-    TrackingTarget: {fileID: 0}
+    TrackingTarget: {fileID: 184726990}
     LookAtTarget: {fileID: 0}
     CustomLookAtTarget: 0
   Lens:
@@ -1333,8 +1335,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 585729583}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.15212329, y: 0.0000032615499, z: -0.0000005020001, w: 0.9883616}
-  m_LocalPosition: {x: 0, y: 1.9021175, z: -3.8611507}
+  m_LocalRotation: {x: 0.22676672, y: 0.000000014512975, z: -0.000000003379088, w: 0.97394913}
+  m_LocalPosition: {x: 0, y: 2.1145153, z: -2.9605346}
   m_LocalScale: {x: 1, y: 1, z: 1.641}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1352,24 +1354,63 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca7de3aefa901374ba29464584a3109a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CameraRadius: 0.4
+  CameraRadius: 0.7
   Decollision:
-    Enabled: 0
+    Enabled: 1
     ObstacleLayers:
       serializedVersion: 2
-      m_Bits: 1
+      m_Bits: 65536
+    UseFollowTarget:
+      Enabled: 1
+      YOffset: 1
+    Damping: 0
+    SmoothingTime: 0
+  TerrainResolution:
+    Enabled: 0
+    TerrainLayers:
+      serializedVersion: 2
+      m_Bits: 327680
+    MaximumRaycast: 10
+    Damping: 0.5
+--- !u!114 &585729591
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 585729583}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dbe43d662878a7c43bcd44d43c9e2094, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CollideAgainst:
+    serializedVersion: 2
+    m_Bits: 65536
+  IgnoreTag: 
+  TransparentLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  MinimumDistanceFromTarget: 0.2
+  AvoidObstacles:
+    Enabled: 1
+    DistanceLimit: 2
+    MinimumOcclusionTime: 0.01
+    CameraRadius: 0.6
     UseFollowTarget:
       Enabled: 0
       YOffset: 0
-    Damping: 0.5
+    Strategy: 0
+    MaximumEffort: 4
     SmoothingTime: 0
-  TerrainResolution:
-    Enabled: 1
-    TerrainLayers:
-      serializedVersion: 2
-      m_Bits: 458752
-    MaximumRaycast: 10
-    Damping: 0.5
+    Damping: 0
+    DampingWhenOccluded: 0
+  ShotQualityEvaluation:
+    Enabled: 0
+    OptimalDistance: 10
+    NearLimit: 5
+    FarLimit: 30
+    MaxQualityBoost: 0.2
 --- !u!1 &613879780
 GameObject:
   m_ObjectHideFlags: 0
@@ -1379,7 +1420,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 613879781}
-  m_Layer: 17
+  m_Layer: 16
   m_Name: Walls_Bathroom
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1415,7 +1456,7 @@ GameObject:
   - component: {fileID: 661012183}
   - component: {fileID: 661012182}
   - component: {fileID: 661012181}
-  m_Layer: 17
+  m_Layer: 16
   m_Name: Wall_Bathroom_R2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1520,7 +1561,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 668596404}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: Environment
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1556,7 +1597,7 @@ GameObject:
   - component: {fileID: 670169845}
   - component: {fileID: 670169844}
   - component: {fileID: 670169843}
-  m_Layer: 17
+  m_Layer: 16
   m_Name: Wall_Mid_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1695,7 +1736,7 @@ GameObject:
   - component: {fileID: 772335699}
   - component: {fileID: 772335698}
   - component: {fileID: 772335697}
-  m_Layer: 17
+  m_Layer: 16
   m_Name: Wall_Outer_Bottom_R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1803,7 +1844,7 @@ GameObject:
   - component: {fileID: 793380111}
   - component: {fileID: 793380110}
   - component: {fileID: 793380109}
-  m_Layer: 17
+  m_Layer: 16
   m_Name: Wall_Kids_R2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1911,7 +1952,7 @@ GameObject:
   - component: {fileID: 806318172}
   - component: {fileID: 806318171}
   - component: {fileID: 806318170}
-  m_Layer: 17
+  m_Layer: 16
   m_Name: Wall_Kitchen_R2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2128,7 +2169,7 @@ GameObject:
   - component: {fileID: 1052979333}
   - component: {fileID: 1052979332}
   - component: {fileID: 1052979331}
-  m_Layer: 17
+  m_Layer: 16
   m_Name: Wall_Outer_L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2236,7 +2277,7 @@ GameObject:
   - component: {fileID: 1087725736}
   - component: {fileID: 1087725735}
   - component: {fileID: 1087725734}
-  m_Layer: 17
+  m_Layer: 16
   m_Name: Wall_Kids_R1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2344,7 +2385,7 @@ GameObject:
   - component: {fileID: 1295174578}
   - component: {fileID: 1295174577}
   - component: {fileID: 1295174576}
-  m_Layer: 17
+  m_Layer: 16
   m_Name: Wall_Mid_4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2452,7 +2493,7 @@ GameObject:
   - component: {fileID: 1326601968}
   - component: {fileID: 1326601967}
   - component: {fileID: 1326601966}
-  m_Layer: 17
+  m_Layer: 16
   m_Name: Wall_Bathroom_R1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2591,7 +2632,7 @@ GameObject:
   - component: {fileID: 1530197697}
   - component: {fileID: 1530197696}
   - component: {fileID: 1530197695}
-  m_Layer: 17
+  m_Layer: 16
   m_Name: Wall_Kitchen_R1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2699,7 +2740,7 @@ GameObject:
   - component: {fileID: 1535929895}
   - component: {fileID: 1535929894}
   - component: {fileID: 1535929893}
-  m_Layer: 17
+  m_Layer: 16
   m_Name: Wall_Mid_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2913,7 +2954,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1649473288}
-  m_Layer: 17
+  m_Layer: 16
   m_Name: Walls_Outer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3102,7 +3143,7 @@ GameObject:
   - component: {fileID: 2076709506}
   - component: {fileID: 2076709505}
   - component: {fileID: 2076709504}
-  m_Layer: 17
+  m_Layer: 16
   m_Name: Wall_Outer_Bottom_L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3267,7 +3308,7 @@ GameObject:
   - component: {fileID: 2093300254}
   - component: {fileID: 2093300253}
   - component: {fileID: 2093300252}
-  m_Layer: 17
+  m_Layer: 16
   m_Name: Wall_Outer_R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3372,7 +3413,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2124688519}
-  m_Layer: 17
+  m_Layer: 16
   m_Name: Walls
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3408,7 +3449,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2125655275}
-  m_Layer: 17
+  m_Layer: 16
   m_Name: Walls_Kids
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3442,5 +3483,5 @@ SceneRoots:
   - {fileID: 1433524445}
   - {fileID: 670824485}
   - {fileID: 668596404}
-  - {fileID: 585729589}
   - {fileID: 184726990}
+  - {fileID: 585729589}
