@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 2721012261332981973}
   - component: {fileID: 5065545529080226384}
   - component: {fileID: 3724475389761591755}
+  - component: {fileID: 5504848182545649114}
   m_Layer: 0
   m_Name: Ghost
   m_TagString: Untagged
@@ -96,6 +97,19 @@ CapsuleCollider:
   m_Height: 2.4532118
   m_Direction: 1
   m_Center: {x: 0.15841092, y: 0.0100393295, z: 0}
+--- !u!114 &5504848182545649114
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9170076730309595271}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b37591de870d0945968c58618fbb06f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _scareRadius: 2
 --- !u!1001 &2936386595960424286
 PrefabInstance:
   m_ObjectHideFlags: 0

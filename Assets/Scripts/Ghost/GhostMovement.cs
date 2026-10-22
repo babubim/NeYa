@@ -32,6 +32,8 @@ public class GhostMovement : MonoBehaviour
     private float _waitTimer;
     private float _currentSpeed;
 
+    private Transform _lookTarget;
+
     public bool IsPassingThrough { get; private set; }
 
     private void Start()
@@ -55,27 +57,47 @@ public class GhostMovement : MonoBehaviour
         Float();
     }
 
+    // Указываем, на кого должен смотреть призрак
+    public void SetLookTarget(Transform target)
+    {
+        _lookTarget = target;
+    }
+
     private void Move()
     {
         if (_points == null || _points.Length < 2) return;
         if (_points[_currentPoint].point == null) return;
 
+        // Ожидание на точке маршрута
         if (_waitTimer > 0f)
         {
             _waitTimer -= Time.deltaTime;
             IsPassingThrough = false;
+
+            if (_lookTarget != null)
+            {
+                Rotate(_lookTarget.position - transform.position);
+            }
+
             return;
         }
 
         Vector3 target = _points[_currentPoint].point.position;
         Vector3 direction = target - transform.position;
 
-        Rotate(direction);
+        // Поворот
+        if (_lookTarget != null)
+        {
+            Rotate(_lookTarget.position - transform.position);
+        }
+        else
+        {
+            Rotate(direction);
+        }
 
-        // Определяем нужную скорость
+        // Проверка препятствий
         float targetSpeed = _moveSpeed;
 
-        // Проверяем, находится ли призрак внутри препятствия
         bool inside = Physics.CheckSphere(
             transform.position,
             _checkRadius,
@@ -91,7 +113,6 @@ public class GhostMovement : MonoBehaviour
         }
         else if (direction.sqrMagnitude > 0.0001f)
         {
-            // Ищем препятствие впереди
             if (Physics.SphereCast(
                 transform.position,
                 _checkRadius,
@@ -103,7 +124,6 @@ public class GhostMovement : MonoBehaviour
             {
                 IsPassingThrough = true;
 
-                // Чем ближе стена, тем меньше скорость
                 float distance = Mathf.Clamp01(
                     hit.distance / _checkDistance
                 );
@@ -116,30 +136,35 @@ public class GhostMovement : MonoBehaviour
             }
         }
 
-        // Плавно изменяем текущую скорость
+        // Плавное изменение скорости
         _currentSpeed = Mathf.MoveTowards(
             _currentSpeed,
             targetSpeed,
             _speedChange * Time.deltaTime
         );
 
-        // Перемещение
+        // Движение по маршруту
         transform.position = Vector3.MoveTowards(
             transform.position,
             target,
             _currentSpeed * Time.deltaTime
         );
 
-        // Достижение точки маршрута
+        // Переход к следующей точке
         if (Vector3.Distance(transform.position, target) < 0.01f)
         {
-            _waitTimer = Mathf.Max(0f, _points[_currentPoint].waitTime);
+            _waitTimer = Mathf.Max(
+                0f,
+                _points[_currentPoint].waitTime
+            );
+
             _currentPoint = (_currentPoint + 1) % _points.Length;
         }
     }
 
     private void Rotate(Vector3 direction)
     {
+        // Поворачиваемся только по горизонтали
         direction.y = 0f;
 
         if (direction.sqrMagnitude < 0.0001f) return;
