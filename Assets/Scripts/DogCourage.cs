@@ -1,18 +1,24 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 [DefaultExecutionOrder(50)]
 public class DogCourage : MonoBehaviour
 {
-    [Header("Визуальная реакция")]
+    [Header("Персонажи")]
     [SerializeField] private Transform _dogModel;
     [SerializeField] private Transform _kostikModel;
 
-    [Header("Испуг")]
-    [SerializeField] private float _recoilDistance = 0.4f;
-    [SerializeField] private float _recoilDuration = 0.5f;
+    [Header("Отпрыгивание")]
+    [SerializeField] private float _recoilDistance = 1.2f;
+    [SerializeField] private float _recoilDuration = 0.25f;
+
+    [Header("Красное мигание")]
+    [SerializeField] private Color _flashColor = Color.red;
+    [SerializeField] private int _flashCount = 3;
+    [SerializeField] private float _flashInterval = 0.07f;
 
     private const float ScareCooldown = 3f;
 
@@ -23,6 +29,11 @@ public class DogCourage : MonoBehaviour
     private Vector3 _kostikStartScale;
 
     private Coroutine _scareCoroutine;
+    private Coroutine _flashCoroutine;
+
+    private readonly List<Material> _materials = new();
+    private readonly List<Color> _originalColors = new();
+    private readonly List<int> _colorProperties = new();
 
     public event Action OnScared;
 
@@ -33,6 +44,42 @@ public class DogCourage : MonoBehaviour
 
         if (_kostikModel != null)
             _kostikStartScale = _kostikModel.localScale;
+
+        SaveMaterials(_dogModel);
+        SaveMaterials(_kostikModel);
+    }
+
+    private void SaveMaterials(Transform model)
+    {
+        if (model == null) return;
+
+        Renderer[] renderers =
+            model.GetComponentsInChildren<Renderer>(true);
+
+        foreach (Renderer renderer in renderers)
+        {
+            foreach (Material material in renderer.materials)
+            {
+                if (material == null ||
+                    _materials.Contains(material))
+                    continue;
+
+                int colorProperty;
+
+                if (material.HasProperty("_BaseColor"))
+                    colorProperty = Shader.PropertyToID("_BaseColor");
+                else if (material.HasProperty("_Color"))
+                    colorProperty = Shader.PropertyToID("_Color");
+                else
+                    continue;
+
+                _materials.Add(material);
+                _originalColors.Add(
+                    material.GetColor(colorProperty));
+
+                _colorProperties.Add(colorProperty);
+            }
+        }
     }
 
     public void GetScared(Vector3 ghostPosition)
@@ -42,7 +89,7 @@ public class DogCourage : MonoBehaviour
 
         _nextScareTime = Time.time + ScareCooldown;
 
-        // Направление от призрака для собаки
+        // Направление отпрыгивания собаки
         Vector3 dogDirection =
             transform.position - ghostPosition;
 
@@ -53,7 +100,7 @@ public class DogCourage : MonoBehaviour
 
         dogDirection.Normalize();
 
-        // Направление от призрака для Костика
+        // Направление отпрыгивания Костика
         Vector3 kostikDirection = dogDirection;
 
         if (_kostikModel != null)
@@ -69,7 +116,7 @@ public class DogCourage : MonoBehaviour
             kostikDirection.Normalize();
         }
 
-        // Запускаем отпрыгивание
+        // Отпрыгивание
         if (_scareCoroutine != null)
             StopCoroutine(_scareCoroutine);
 
@@ -77,7 +124,13 @@ public class DogCourage : MonoBehaviour
             ScareAnimation(dogDirection, kostikDirection)
         );
 
-        // Сообщаем контроллеру об испуге
+        // Красное мигание
+        if (_flashCoroutine != null)
+            StopCoroutine(_flashCoroutine);
+
+        _flashCoroutine = StartCoroutine(FlashAnimation());
+
+        // Сообщаем о потере храбрости
         OnScared?.Invoke();
     }
 
@@ -100,9 +153,9 @@ public class DogCourage : MonoBehaviour
 
             float progress = Mathf.Clamp01(timer / duration);
 
-            // Плавное отпрыгивание
-            float moveProgress = Mathf.SmoothStep(
-                0f, 1f, progress);
+            // Резкий старт и плавное замедление
+            float moveProgress =
+                1f - Mathf.Pow(1f - progress, 3f);
 
             float stepDistance =
                 (moveProgress - previousProgress)
@@ -110,21 +163,19 @@ public class DogCourage : MonoBehaviour
 
             previousProgress = moveProgress;
 
-            // Собака отпрыгивает
+            // Отпрыгивание собаки
             if (_dogModel != null)
             {
                 _dogModel.position +=
                     dogDirection * stepDistance;
             }
 
-            // Костик отпрыгивает
+            // Отпрыгивание Костика
             if (_kostikModel != null)
             {
                 Vector3 movement =
                     kostikDirection * stepDistance;
 
-                // Если Костик внутри модели собаки,
-                // учитываем уже полученное смещение
                 if (_dogModel != null &&
                     _kostikModel.IsChildOf(_dogModel))
                 {
@@ -134,27 +185,25 @@ public class DogCourage : MonoBehaviour
                 _kostikModel.position += movement;
             }
 
-            // Сжатие персонажей при испуге
+            // Сжатие во время испуга
             float squash = Mathf.Sin(progress * Mathf.PI);
 
             if (_dogModel != null)
             {
                 _dogModel.localScale =
-                    _dogStartScale * (1f - 0.15f * squash);
+                    _dogStartScale * (1f - 0.2f * squash);
             }
 
             if (_kostikModel != null)
             {
                 _kostikModel.localScale =
-                    _kostikStartScale * (1f - 0.15f * squash);
+                    _kostikStartScale * (1f - 0.2f * squash);
             }
 
             yield return null;
         }
 
-        // Возвращаем только исходный размер!
-        // Позиции НЕ возвращаем.
-
+        // Возвращаем размер, но НЕ позицию
         if (_dogModel != null)
             _dogModel.localScale = _dogStartScale;
 
@@ -162,5 +211,46 @@ public class DogCourage : MonoBehaviour
             _kostikModel.localScale = _kostikStartScale;
 
         _scareCoroutine = null;
+    }
+
+    private IEnumerator FlashAnimation()
+    {
+        for (int i = 0; i < _flashCount; i++)
+        {
+            SetFlashColor(true);
+
+            yield return new WaitForSeconds(_flashInterval);
+
+            SetFlashColor(false);
+
+            yield return new WaitForSeconds(_flashInterval);
+        }
+
+        SetFlashColor(false);
+        _flashCoroutine = null;
+    }
+
+    private void SetFlashColor(bool isFlashing)
+    {
+        for (int i = 0; i < _materials.Count; i++)
+        {
+            Color color = isFlashing
+                ? _flashColor
+                : _originalColors[i];
+
+            _materials[i].SetColor(
+                _colorProperties[i], color);
+        }
+    }
+
+    private void OnDisable()
+    {
+        SetFlashColor(false);
+
+        if (_dogModel != null)
+            _dogModel.localScale = _dogStartScale;
+
+        if (_kostikModel != null)
+            _kostikModel.localScale = _kostikStartScale;
     }
 }

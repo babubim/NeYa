@@ -13,7 +13,7 @@ public class GhostMovement : MonoBehaviour
     [Header("Маршрут")]
     [SerializeField] private GhostPoint[] _points;
     [SerializeField] private float _moveSpeed = 1.5f;
-    [SerializeField] private float _rotationSpeed = 180f;
+    [SerializeField] private float _rotationSpeed = 360f;
 
     [Header("Прохождение препятствий")]
     [SerializeField] private LayerMask _obstacleLayers;
@@ -28,6 +28,8 @@ public class GhostMovement : MonoBehaviour
     [SerializeField] private float _floatSpeed = 2f;
 
     private Vector3 _startPosition;
+    private Vector3 _routeDirection;
+
     private int _currentPoint = 1;
     private float _waitTimer;
     private float _currentSpeed;
@@ -40,9 +42,13 @@ public class GhostMovement : MonoBehaviour
     {
         _currentSpeed = _moveSpeed;
 
+        // Запоминаем исходное направление призрака
+        _routeDirection = transform.forward;
+
         if (_model != null)
             _startPosition = _model.localPosition;
 
+        // Если маршрута нет, призрак остаётся на месте
         if (_points == null || _points.Length < 2 ||
             _points[0].point == null)
             return;
@@ -57,7 +63,21 @@ public class GhostMovement : MonoBehaviour
         Float();
     }
 
-    // Указываем, на кого должен смотреть призрак
+    private void LateUpdate()
+    {
+        if (_lookTarget != null)
+        {
+            // Во время испуга смотрим на собаку
+            Rotate(_lookTarget.position - transform.position);
+        }
+        else
+        {
+            // Возвращаемся к обычному направлению
+            Rotate(_routeDirection);
+        }
+    }
+
+    // Указываем цель взгляда
     public void SetLookTarget(Transform target)
     {
         _lookTarget = target;
@@ -65,34 +85,28 @@ public class GhostMovement : MonoBehaviour
 
     private void Move()
     {
-        if (_points == null || _points.Length < 2) return;
-        if (_points[_currentPoint].point == null) return;
+        // Нет маршрута - не двигаемся
+        if (_points == null || _points.Length < 2)
+            return;
+
+        if (_points[_currentPoint].point == null)
+            return;
 
         // Ожидание на точке маршрута
         if (_waitTimer > 0f)
         {
             _waitTimer -= Time.deltaTime;
             IsPassingThrough = false;
-
-            if (_lookTarget != null)
-            {
-                Rotate(_lookTarget.position - transform.position);
-            }
-
             return;
         }
 
         Vector3 target = _points[_currentPoint].point.position;
         Vector3 direction = target - transform.position;
 
-        // Поворот
-        if (_lookTarget != null)
+        // Запоминаем направление движения
+        if (direction.sqrMagnitude > 0.0001f)
         {
-            Rotate(_lookTarget.position - transform.position);
-        }
-        else
-        {
-            Rotate(direction);
+            _routeDirection = direction;
         }
 
         // Проверка препятствий
@@ -167,7 +181,8 @@ public class GhostMovement : MonoBehaviour
         // Поворачиваемся только по горизонтали
         direction.y = 0f;
 
-        if (direction.sqrMagnitude < 0.0001f) return;
+        if (direction.sqrMagnitude < 0.0001f)
+            return;
 
         Quaternion targetRotation =
             Quaternion.LookRotation(direction);
@@ -181,7 +196,8 @@ public class GhostMovement : MonoBehaviour
 
     private void Float()
     {
-        if (_model == null) return;
+        if (_model == null)
+            return;
 
         float offset =
             Mathf.Sin(Time.time * _floatSpeed) * _floatHeight;
