@@ -1,4 +1,5 @@
 
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -13,28 +14,22 @@ public class DogCourage : MonoBehaviour
     [SerializeField] private float _recoilDistance = 0.4f;
     [SerializeField] private float _recoilDuration = 0.5f;
 
-    private const int MaxCourage = 3;
     private const float ScareCooldown = 3f;
 
-    private int _currentCourage = MaxCourage;
     private float _nextScareTime;
+    private bool _canBeScared = true;
 
-    private Vector3 _dogStartPosition;
     private Vector3 _dogStartScale;
     private Vector3 _kostikStartScale;
 
-    private Vector3 _dogAwayDirection;
-    private Vector3 _kostikAwayDirection;
+    private Coroutine _scareCoroutine;
 
-    private float _recoilAmount;
+    public event Action OnScared;
 
     private void Start()
     {
         if (_dogModel != null)
-        {
-            _dogStartPosition = _dogModel.localPosition;
             _dogStartScale = _dogModel.localScale;
-        }
 
         if (_kostikModel != null)
             _kostikStartScale = _kostikModel.localScale;
@@ -42,50 +37,62 @@ public class DogCourage : MonoBehaviour
 
     public void GetScared(Vector3 ghostPosition)
     {
-        if (_currentCourage <= 0 ||
-            Time.time < _nextScareTime)
+        if (!_canBeScared || Time.time < _nextScareTime)
             return;
 
-        _currentCourage--;
         _nextScareTime = Time.time + ScareCooldown;
 
-        // Направления от призрака
-        _dogAwayDirection = transform.position - ghostPosition;
-        _dogAwayDirection.y = 0f;
+        // Направление от призрака для собаки
+        Vector3 dogDirection =
+            transform.position - ghostPosition;
 
-        if (_dogAwayDirection.sqrMagnitude < 0.001f)
-            _dogAwayDirection = -transform.forward;
+        dogDirection.y = 0f;
 
-        _dogAwayDirection.Normalize();
+        if (dogDirection.sqrMagnitude < 0.001f)
+            dogDirection = -transform.forward;
+
+        dogDirection.Normalize();
+
+        // Направление от призрака для Костика
+        Vector3 kostikDirection = dogDirection;
 
         if (_kostikModel != null)
         {
-            _kostikAwayDirection =
+            kostikDirection =
                 _kostikModel.position - ghostPosition;
 
-            _kostikAwayDirection.y = 0f;
+            kostikDirection.y = 0f;
 
-            if (_kostikAwayDirection.sqrMagnitude < 0.001f)
-                _kostikAwayDirection = _dogAwayDirection;
+            if (kostikDirection.sqrMagnitude < 0.001f)
+                kostikDirection = dogDirection;
 
-            _kostikAwayDirection.Normalize();
+            kostikDirection.Normalize();
         }
 
-        Debug.Log("Собака и Костик испугались! Смелость: "
-                  + _currentCourage + "/" + MaxCourage);
+        // Запускаем отпрыгивание
+        if (_scareCoroutine != null)
+            StopCoroutine(_scareCoroutine);
 
-        StartCoroutine(ScareAnimation());
+        _scareCoroutine = StartCoroutine(
+            ScareAnimation(dogDirection, kostikDirection)
+        );
 
-        if (_currentCourage <= 0)
-        {
-            Debug.Log("ПРОИГРЫШ! Собака и Костик напуганы!");
-        }
+        // Сообщаем контроллеру об испуге
+        OnScared?.Invoke();
     }
 
-    private IEnumerator ScareAnimation()
+    public void SetScareEnabled(bool enabled)
+    {
+        _canBeScared = enabled;
+    }
+
+    private IEnumerator ScareAnimation(
+        Vector3 dogDirection,
+        Vector3 kostikDirection)
     {
         float timer = 0f;
         float duration = Mathf.Max(0.01f, _recoilDuration);
+        float previousProgress = 0f;
 
         while (timer < duration)
         {
@@ -93,53 +100,67 @@ public class DogCourage : MonoBehaviour
 
             float progress = Mathf.Clamp01(timer / duration);
 
-            // Резко отскакиваем и плавно возвращаемся
-            if (progress < 0.25f)
+            // Плавное отпрыгивание
+            float moveProgress = Mathf.SmoothStep(
+                0f, 1f, progress);
+
+            float stepDistance =
+                (moveProgress - previousProgress)
+                * _recoilDistance;
+
+            previousProgress = moveProgress;
+
+            // Собака отпрыгивает
+            if (_dogModel != null)
             {
-                _recoilAmount = Mathf.SmoothStep(
-                    0f, 1f, progress / 0.25f);
+                _dogModel.position +=
+                    dogDirection * stepDistance;
             }
-            else
+
+            // Костик отпрыгивает
+            if (_kostikModel != null)
             {
-                _recoilAmount = Mathf.SmoothStep(
-                    1f, 0f, (progress - 0.25f) / 0.75f);
+                Vector3 movement =
+                    kostikDirection * stepDistance;
+
+                // Если Костик внутри модели собаки,
+                // учитываем уже полученное смещение
+                if (_dogModel != null &&
+                    _kostikModel.IsChildOf(_dogModel))
+                {
+                    movement -= dogDirection * stepDistance;
+                }
+
+                _kostikModel.position += movement;
+            }
+
+            // Сжатие персонажей при испуге
+            float squash = Mathf.Sin(progress * Mathf.PI);
+
+            if (_dogModel != null)
+            {
+                _dogModel.localScale =
+                    _dogStartScale * (1f - 0.15f * squash);
+            }
+
+            if (_kostikModel != null)
+            {
+                _kostikModel.localScale =
+                    _kostikStartScale * (1f - 0.15f * squash);
             }
 
             yield return null;
         }
 
-        _recoilAmount = 0f;
-    }
+        // Возвращаем только исходный размер!
+        // Позиции НЕ возвращаем.
 
-    private void LateUpdate()
-    {
-        // Откидывание собаки
         if (_dogModel != null)
-        {
-            Vector3 direction =
-                _dogModel.parent.InverseTransformDirection(
-                    _dogAwayDirection);
+            _dogModel.localScale = _dogStartScale;
 
-            _dogModel.localPosition =
-                _dogStartPosition +
-                direction * _recoilDistance * _recoilAmount;
-
-            _dogModel.localScale =
-                _dogStartScale * (1f - 0.15f * _recoilAmount);
-        }
-
-        // Откидывание Костика
         if (_kostikModel != null)
-        {
-            Vector3 direction =
-                _kostikModel.parent.InverseTransformDirection(
-                    _kostikAwayDirection);
+            _kostikModel.localScale = _kostikStartScale;
 
-            _kostikModel.localPosition +=
-                direction * _recoilDistance * _recoilAmount;
-
-            _kostikModel.localScale =
-                _kostikStartScale * (1f - 0.15f * _recoilAmount);
-        }
+        _scareCoroutine = null;
     }
 }
