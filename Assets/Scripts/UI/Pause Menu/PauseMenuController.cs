@@ -1,10 +1,18 @@
 
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.SceneManagement;
 
 public class PauseMenuController : MonoBehaviour
 {
+    [Header("MVC")]
     [SerializeField] private PauseMenuView _view;
+
+    [Header("Музыка")]
+    [SerializeField] private AudioMixer _gameMixer;
+    [SerializeField] private AudioMixerSnapshot _gameplaySnapshot;
+    [SerializeField] private AudioMixerSnapshot _pausedSnapshot;
+    [SerializeField] private float _transitionTime = 0.5f;
 
     private PauseMenuModel _model;
 
@@ -24,13 +32,24 @@ public class PauseMenuController : MonoBehaviour
         _view.NewGameClicked += NewGame;
         _view.MainMenuClicked += ReturnToMainMenu;
 
-        // Подписываемся на изменение состояния паузы
+        // Подписываемся на состояние паузы
         _model.PauseStateChanged += OnPauseStateChanged;
+
+        // Музыка должна переключаться даже на паузе
+        if (_gameMixer != null)
+        {
+            _gameMixer.updateMode =
+                AudioMixerUpdateMode.UnscaledTime;
+        }
     }
 
     private void Start()
     {
         Time.timeScale = 1f;
+
+        // Начальное состояние музыки
+        if (_gameplaySnapshot != null)
+            _gameplaySnapshot.TransitionTo(0f);
     }
 
     private void Update()
@@ -53,7 +72,6 @@ public class PauseMenuController : MonoBehaviour
         _previousCursorLockState = Cursor.lockState;
         _previousCursorVisibility = Cursor.visible;
 
-        // Изменяем состояние модели
         _model.SetPaused(true);
     }
 
@@ -62,35 +80,45 @@ public class PauseMenuController : MonoBehaviour
         if (!_model.IsPaused)
             return;
 
-        // Изменяем состояние модели
         _model.SetPaused(false);
     }
 
     private void OnPauseStateChanged(bool isPaused)
     {
-        // Управляем игровым временем
+        // Останавливаем или возобновляем игру
         Time.timeScale = isPaused ? 0f : 1f;
 
-        // Управляем курсором
         if (isPaused)
         {
+            // Показываем курсор
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
+
+            // Приглушаем музыку
+            if (_pausedSnapshot != null)
+                _pausedSnapshot.TransitionTo(_transitionTime);
         }
         else
         {
+            // Возвращаем управление мышью
             Cursor.lockState = _previousCursorLockState;
             Cursor.visible = _previousCursorVisibility;
+
+            // Возвращаем обычное звучание
+            if (_gameplaySnapshot != null)
+                _gameplaySnapshot.TransitionTo(_transitionTime);
         }
     }
 
-
     public void NewGame()
     {
-        // Восстанавливаем игровое время
         Time.timeScale = 1f;
 
-        // Восстанавливаем состояние курсора
+        // Сбрасываем музыкальный фильтр
+        if (_gameplaySnapshot != null)
+            _gameplaySnapshot.TransitionTo(0f);
+
+        // Восстанавливаем курсор
         if (_model.IsPaused)
         {
             Cursor.lockState = _previousCursorLockState;
@@ -101,11 +129,15 @@ public class PauseMenuController : MonoBehaviour
         SceneManager.LoadScene(1);
     }
 
-
     public void ReturnToMainMenu()
     {
         Time.timeScale = 1f;
 
+        // Сбрасываем приглушение музыки
+        if (_gameplaySnapshot != null)
+            _gameplaySnapshot.TransitionTo(0f);
+
+        // Показываем курсор
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
@@ -114,7 +146,6 @@ public class PauseMenuController : MonoBehaviour
 
     private void OnDestroy()
     {
-        // Отписываемся от событий
         if (_view != null)
         {
             _view.ResumeClicked -= ResumeGame;

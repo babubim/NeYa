@@ -4,9 +4,13 @@ using UnityEngine;
 [DefaultExecutionOrder(100)]
 public class KostikShoot : MonoBehaviour
 {
+    [Header("Стрельба")]
     [SerializeField] private Rigidbody _shell;
     [SerializeField] private float _speed = 15f;
     [SerializeField] private float _reloadTime = 2f;
+
+    [Header("Звук выстрела")]
+    [SerializeField] private AudioSource _shotAudio;
 
     private Camera _camera;
     private float _nextShotTime;
@@ -42,20 +46,27 @@ public class KostikShoot : MonoBehaviour
             target = hit.point;
         }
 
-        // Создаём Shell прямо в позиции ShootPoint
+        // Создаём снаряд
         Rigidbody shell = Instantiate(
             _shell,
             transform.position,
             transform.rotation
         );
 
-        // Направляем Shell к прицелу
+        // Направляем снаряд к прицелу
         Vector3 direction = (target - transform.position).normalized;
 
         shell.linearVelocity = direction * _speed;
 
         Destroy(shell.gameObject, 5f);
 
+        // Воспроизводим звук выстрела
+        if (_shotAudio != null)
+        {
+            _shotAudio.Play();
+        }
+
+        // Перезарядка
         _nextShotTime = Time.time + _reloadTime;
 
         Debug.Log("Выстрел из: " + transform.position);

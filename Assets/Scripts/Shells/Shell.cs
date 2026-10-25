@@ -11,6 +11,6 @@ public class Shell : MonoBehaviour
 
         _hasCollided = true;
 
-        Destroy(gameObject, 0.05f);
+        Destroy(gameObject, 0.03f);
     }
 }

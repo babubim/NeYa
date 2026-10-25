@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1233149941 &-8352357017466508941
+AudioContainerElement:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Ambient_03_{-8352357017466508941}
+  m_AudioClip: {fileID: 8300000, guid: 014dab8089c389f4ca8c3dcb35668cd8, type: 3}
+  m_Volume: 0
+  m_Enabled: 1
+--- !u!1233149941 &-3704364297478243706
+AudioContainerElement:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: SmallGhost_Voice1_{-3704364297478243706}
+  m_AudioClip: {fileID: 8300000, guid: 935ef51fd5cf549468be2d1513c128d9, type: 3}
+  m_Volume: 0
+  m_Enabled: 1
+--- !u!1233149941 &-1588433316159036520
+AudioContainerElement:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Ambient_01_{-1588433316159036520}
+  m_AudioClip: {fileID: 8300000, guid: 6ca9d33c60ec6af4b913abd5310a2a24, type: 3}
+  m_Volume: 0
+  m_Enabled: 1
+--- !u!1307931743 &6418180475301049370
+AudioRandomContainer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: SmallGhost_Voice
+  m_Volume: 0
+  m_Pitch: 0
+  m_AutomaticTriggerTime: 0
+  m_LoopCount: 1
+  m_VolumeRandomizationRange: {x: 0, y: 0}
+  m_PitchRandomizationRange: {x: 0, y: 300}
+  m_AutomaticTriggerTimeRandomizationRange: {x: -2, y: 2}
+  m_LoopCountRandomizationRange: {x: 0, y: 0}
+  m_Elements:
+  - {fileID: -3704364297478243706}
+  - {fileID: -1588433316159036520}
+  - {fileID: -8352357017466508941}
+  m_AvoidRepeatingLast: 0
+  m_PlaybackMode: 2
+  m_TriggerMode: 1
+  m_AutomaticTriggerMode: 1
+  m_LoopMode: 0
+  m_VolumeRandomizationEnabled: 0
+  m_PitchRandomizationEnabled: 1
+  m_AutomaticTriggerTimeRandomizationEnabled: 0
+  m_LoopCountRandomizationEnabled: 0
