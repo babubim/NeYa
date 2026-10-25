@@ -9,6 +9,9 @@ public class GhostScare : MonoBehaviour
     [Header("Поворот при испуге")]
     [SerializeField] private float _lookDuration = 0.4f;
 
+    [Header("Звук запугивания")]
+    [SerializeField] private AudioSource _scareAudio;
+
     private DogCourage _dog;
     private GhostMovement _movement;
 
@@ -36,7 +39,7 @@ public class GhostScare : MonoBehaviour
         if (_dog == null)
             return;
 
-        // Закончили пугать - смотрим по маршруту
+        // Заканчиваем смотреть на собаку
         if (_lookEndTime >= 0f &&
             Time.time >= _lookEndTime)
         {
@@ -77,10 +80,14 @@ public class GhostScare : MonoBehaviour
 
     private void OnSuccessfulScare()
     {
-        // Реагирует только призрак,
+        // Реагирует только тот призрак,
         // который действительно напугал собаку
         if (!_isScaring)
             return;
+
+        // ЗВУК ЗАПУГИВАНИЯ
+        if (_scareAudio != null)
+            _scareAudio.Play();
 
         Transform ghostTransform =
             _movement != null
@@ -93,14 +100,14 @@ public class GhostScare : MonoBehaviour
 
         direction.y = 0f;
 
-        // Мгновенно поворачиваемся к собаке
+        // Поворачиваемся к собаке
         if (direction.sqrMagnitude > 0.0001f)
         {
             ghostTransform.rotation =
                 Quaternion.LookRotation(direction);
         }
 
-        // Ненадолго удерживаем взгляд
+        // Удерживаем взгляд некоторое время
         if (_movement != null)
             _movement.SetLookTarget(_dog.transform);
 

@@ -19,7 +19,11 @@ public class Health : MonoBehaviour
     [SerializeField] private Color _damageColor = Color.red;
     [SerializeField] private float _flashDuration = 0.2f;
 
+    [Header("Звук получения урона")]
+    [SerializeField] private AudioSource _hurtAudio;
+
     private int _health;
+    private GhostAudioPool _audioPool;
 
     private readonly List<Material> _materials = new();
     private readonly List<Color> _originalColors = new();
@@ -27,7 +31,6 @@ public class Health : MonoBehaviour
 
     private Coroutine _flashCoroutine;
 
-    // Событие смерти призрака
     public event Action<Health> Died;
 
     private void Awake()
@@ -42,6 +45,8 @@ public class Health : MonoBehaviour
                 _health = 3;
                 break;
         }
+
+        _audioPool = FindFirstObjectByType<GhostAudioPool>();
 
         SaveMaterials();
     }
@@ -85,11 +90,31 @@ public class Health : MonoBehaviour
 
         _health -= damage;
 
+        bool isDead = _health <= 0;
+
+        // Звук запускаем СРАЗУ при попадании
+        if (isDead)
+        {
+            if (_audioPool != null)
+            {
+                _audioPool.PlayDeathSound(
+                    _enemyType,
+                    transform.position
+                );
+            }
+        }
+        else
+        {
+            if (_hurtAudio != null)
+                _hurtAudio.Play();
+        }
+
+        // Красная вспышка
         if (_flashCoroutine != null)
             StopCoroutine(_flashCoroutine);
 
         _flashCoroutine = StartCoroutine(
-            DamageFlash(_health <= 0)
+            DamageFlash(isDead)
         );
     }
 
@@ -128,7 +153,7 @@ public class Health : MonoBehaviour
 
     private void Die()
     {
-        // Сообщаем о смерти
+        // Звук уже играет из AudioPool
         Died?.Invoke(this);
 
         Destroy(gameObject);
